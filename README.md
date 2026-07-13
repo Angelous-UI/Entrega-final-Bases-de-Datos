@@ -14,6 +14,7 @@ Este repositorio contiene:
 ## Tabla de contenido
 
 - [Requisitos](#requisitos)
+- [Diagrama MER](#diagrama-mer)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Instalación paso a paso](#instalación-paso-a-paso)
 - [Configuración de la base de datos](#configuración-de-la-base-de-datos)
@@ -30,6 +31,20 @@ Este repositorio contiene:
 - **Python 3.10+**
 - **PostgreSQL 14+** (con pgAdmin, ejecutándose en `localhost`)
 - Navegador web
+
+---
+
+## Diagrama MER
+
+El diseño conceptual de la base de datos se representa mediante el siguiente
+diagrama Entidad-Relación (MER) en notación de clases UML, que muestra las
+entidades, sus atributos, las llaves primarias/foráneas y las cardinalidades
+de las relaciones (1:1, 1:N, N:M).
+
+![Diagrama MER](docs/diagrama_mer.png)
+
+> La imagen se encuentra en `docs/diagrama_mer.png`. Es coherente con el esquema
+> implementado en `sql/superinter_ddl.sql`.
 
 ---
 
@@ -63,6 +78,11 @@ superinter/
 │   └── ordenes/
 │
 ├── static/css/styles.css   # Estilos
+│
+├── docs/                   # Documentos y evidencias (no código)
+│   ├── diagrama_mer.png            # Diagrama MER (UML)
+│   ├── generacion_datos.md         # Documentación de datos sintéticos
+│   └── evidencias/                 # Capturas de pgAdmin
 │
 └── sql/
     ├── superinter_ddl.sql              # Creación del esquema y tablas
@@ -213,7 +233,7 @@ Cada consulta está comentada con: **objetivo de negocio** y **técnica SQL** ut
 
 ## Integrantes
 
-- Integrante 1 — _(nombre y código)_
+- Integrante 1 — _Juan Manuel Muñoz Delgado 2436424_
 - Integrante 2 — _(nombre y código)_
 
 Proyecto para la asignatura de **Bases de Datos**.

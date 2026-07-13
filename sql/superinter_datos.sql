@@ -18,11 +18,12 @@ SET search_path TO superinter;
 -- ------------------------------------------------------------
 -- 1. SEDES (4 ciudades del Valle del Cauca)
 -- ------------------------------------------------------------
-INSERT INTO sede (codigo_sede, nombre_sede, ciudad, direccion, telefono, num_cajas, fecha_apertura) VALUES
-('S001','Superinter Cali Centro','Cali','Cra 5 #12-34','6023001001',12,'2010-03-15'),
-('S002','Superinter Palmira','Palmira','Cll 30 #28-10','6022701002',6,'2013-07-20'),
-('S003','Superinter Tulua','Tulua','Cra 25 #26-40','6022331003',5,'2015-11-05'),
-('S004','Superinter Buenaventura','Buenaventura','Cll 2 #3-15','6022401004',4,'2017-02-18');
+INSERT INTO sede (codigo_sede, nombre_sede, ciudad, direccion, telefono, email,
+    horario_apertura, horario_cierre, area_m2, num_cajas, fecha_apertura) VALUES
+('S001','Superinter Cali Centro','Cali','Cra 5 #12-34','6023001001','cali.centro@superinter.com','07:00','21:00',1850.50,12,'2010-03-15'),
+('S002','Superinter Palmira','Palmira','Cll 30 #28-10','6022701002','palmira@superinter.com','07:00','20:00',980.00,6,'2013-07-20'),
+('S003','Superinter Tulua','Tulua','Cra 25 #26-40','6022331003','tulua@superinter.com','07:30','20:00',760.75,5,'2015-11-05'),
+('S004','Superinter Buenaventura','Buenaventura','Cll 2 #3-15','6022401004','buenaventura@superinter.com','08:00','19:00',620.25,4,'2017-02-18');
 
 -- ------------------------------------------------------------
 -- 2. EMPLEADOS (20 empleados distribuidos con sesgo hacia Cali)
@@ -77,6 +78,21 @@ INSERT INTO proveedor (nit, razon_social, banco, tipo_cuenta, numero_cuenta,
 ('900111013-3','Congelados del Pacifico','Bancolombia','CORRIENTE','1013','Ivan Zapata', '3101110013',2,30,4),
 ('900111014-4','Huevos y Aves del Valle','Banco Agrario','AHORROS','1014','Gloria Mora', '3101110014',1,15,5),
 ('900111015-5','Articulos para el Hogar SA','BBVA','CORRIENTE','1015','Mario Bravo',      '3101110015',6,60,3);
+
+-- Completar campos de proveedor que quedaban vacios: RUT, email comercial
+-- y los contactos de cartera y logistica (derivados de los datos ya cargados).
+UPDATE proveedor SET
+    numero_rut               = REPLACE(nit, '-', '') || '-RUT',
+    contacto_comercial_email = 'comercial' || id_proveedor || '@' ||
+                               LOWER(REGEXP_REPLACE(SPLIT_PART(razon_social, ' ', 1), '[^a-zA-Z]', '', 'g')) || '.com',
+    contacto_cartera_nombre  = 'Cartera ' || SPLIT_PART(razon_social, ' ', 1),
+    contacto_cartera_tel     = '3102' || LPAD(id_proveedor::text, 6, '0'),
+    contacto_cartera_email   = 'cartera' || id_proveedor || '@' ||
+                               LOWER(REGEXP_REPLACE(SPLIT_PART(razon_social, ' ', 1), '[^a-zA-Z]', '', 'g')) || '.com',
+    contacto_logistico_nombre = 'Logistica ' || SPLIT_PART(razon_social, ' ', 1),
+    contacto_logistico_tel    = '3103' || LPAD(id_proveedor::text, 6, '0'),
+    contacto_logistico_email  = 'logistica' || id_proveedor || '@' ||
+                               LOWER(REGEXP_REPLACE(SPLIT_PART(razon_social, ' ', 1), '[^a-zA-Z]', '', 'g')) || '.com';
 
 -- ------------------------------------------------------------
 -- 4. CATEGORIAS (jerarquia de 2 niveles)
@@ -163,28 +179,44 @@ INSERT INTO bodega (codigo_bodega, nombre_bodega, tipo_bodega, id_sede, id_respo
 -- ------------------------------------------------------------
 -- 9. INVENTARIO (cada producto en la bodega central + su bodega local)
 -- ------------------------------------------------------------
+-- Se genera VARIABILIDAD intencional en los dias de stock (= stock/demanda)
+-- para que el modulo de inventario muestre las 4 categorias de alerta:
+--   ~10% AGOTADO (stock 0), ~20% CRITICO (<5 dias),
+--   ~30% ALERTA (5-15 dias) y ~40% SEGURO (>15 dias).
 INSERT INTO inventario (codigo_producto, id_bodega, stock_actual, demanda_diaria_promedio, fecha_ultimo_conteo)
 SELECT p.codigo_producto, b.id_bodega,
-       (50 + floor(random() * 500))::int,
-       ROUND((1 + random() * 30)::numeric, 2),
+       CASE
+           WHEN r < 0.10 THEN 0                                        -- AGOTADO
+           WHEN r < 0.30 THEN (demanda * (1 + random() * 3))::int      -- CRITICO: 1-4 dias
+           WHEN r < 0.60 THEN (demanda * (5 + random() * 10))::int     -- ALERTA: 5-15 dias
+           ELSE               (demanda * (16 + random() * 40))::int    -- SEGURO: >15 dias
+       END,
+       ROUND(demanda::numeric, 2),
        CURRENT_DATE - (floor(random() * 30))::int
 FROM producto p
 CROSS JOIN bodega b
+CROSS JOIN LATERAL (SELECT random() AS r, (1 + random() * 20) AS demanda) AS gen
 WHERE b.id_bodega IN (1, 2);   -- central + Cali centro (evita explosion de filas)
 
 -- ------------------------------------------------------------
 -- 10. CLIENTES (200: mezcla de naturales CC/CE y juridicos NIT)
 -- ------------------------------------------------------------
 INSERT INTO cliente (tipo_documento, numero_documento, nombre_completo, habeas_data,
-    ciudad, telefono, email, tipo_regimen, canal_venta_preferido)
+    ciudad, direccion_operativa, direccion_residencia, telefono, email,
+    representante_legal, tipo_regimen, canal_venta_preferido)
 SELECT
     CASE WHEN g % 10 = 0 THEN 'NIT' WHEN g % 17 = 0 THEN 'CE' ELSE 'CC' END,
     LPAD((10000000 + g * 7)::text, 10, '0'),
     CASE WHEN g % 10 = 0 THEN 'Empresa Cliente ' || g ELSE 'Cliente Natural ' || g END,
     TRUE,
     (ARRAY['Cali','Cali','Cali','Palmira','Tulua','Buenaventura'])[1 + (g % 6)],  -- sesgo Cali
+    -- direccion_operativa: solo aplica a clientes juridicos (NIT); los naturales quedan NULL
+    CASE WHEN g % 10 = 0 THEN 'Cra ' || (5 + g % 40) || ' #' || (10 + g % 60) || '-' || (5 + g % 50) || ' Local ' || (1 + g % 30) ELSE NULL END,
+    'Cll ' || (1 + g % 90) || ' #' || (2 + g % 70) || '-' || (3 + g % 80),  -- direccion_residencia
     '31' || LPAD((10000000 + g)::text, 8, '0'),
     'cliente' || g || '@correo.com',
+    -- representante_legal: solo para clientes juridicos (NIT); los naturales quedan NULL
+    CASE WHEN g % 10 = 0 THEN 'Representante Legal ' || g ELSE NULL END,
     CASE WHEN g % 10 = 0 THEN 'RESPONSABLE_IVA' ELSE 'NO_RESPONSABLE_IVA' END,
     (ARRAY['PRESENCIAL','PRESENCIAL','PRESENCIAL','DOMICILIO','WEB'])[1 + (g % 5)]
 FROM generate_series(1, 200) AS g;
