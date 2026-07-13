@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Productos - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Productos</h1>
+        <p class="subtitle">{{ productos|length }} producto(s) en el catalogo</p>
+    </div>
+    <a class="btn" href="{{ url_for('productos.crear') }}">+ Nuevo producto</a>
+</div>
+
+{% if productos %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Codigo</th>
+                <th>Nombre</th>
+                <th>Categoria</th>
+                <th>Proveedor</th>
+                <th class="num">Precio</th>
+                <th class="num">IVA</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td>{{ p.codigo_producto }}</td>
+                <td>{{ p.nombre_producto }}</td>
+                <td>{{ p.nombre_categoria }}</td>
+                <td>{{ p.proveedor }}</td>
+                <td class="num">$ {{ '{:,.0f}'.format(p.precio_venta) }}</td>
+                <td class="num">{{ (p.tarifa_iva * 100)|int }}%</td>
+                <td>
+                    {% if p.activo %}<span class="badge badge-on">Activo</span>
+                    {% else %}<span class="badge badge-off">Inactivo</span>{% endif %}
+                </td>
+                <td>
+                    <a class="btn btn-sec btn-sm" href="{{ url_for('productos.detalle', codigo=p.codigo_producto) }}">Ver</a>
+                    <a class="btn btn-sec btn-sm" href="{{ url_for('productos.editar', codigo=p.codigo_producto) }}">Editar</a>
+                    <form method="post" action="{{ url_for('productos.cambiar_estado', codigo=p.codigo_producto) }}" style="display:inline">
+                        <button class="btn btn-sm {{ 'btn-danger' if p.activo else 'btn-sec' }}" type="submit">
+                            {{ 'Desactivar' if p.activo else 'Activar' }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card"><p class="empty">Aun no hay productos. Crea el primero.</p></div>
+{% endif %}
+{% endblock %}

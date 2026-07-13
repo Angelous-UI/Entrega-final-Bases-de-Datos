@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Factura {{ factura.numero_factura_dian }} - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Factura {{ factura.numero_factura_dian }}</h1>
+        <p class="subtitle">{{ factura.fecha_expedicion.strftime('%Y-%m-%d %H:%M') }} - <span class="badge badge-info">{{ factura.estado }}</span></p>
+    </div>
+    <a class="btn btn-sec" href="{{ url_for('facturas.listar') }}">Volver</a>
+</div>
+
+<div class="card">
+    <dl class="dl">
+        <dt>Cliente</dt><dd>{{ factura.cliente }} ({{ factura.doc_cliente }})</dd>
+        <dt>Sede</dt><dd>{{ factura.nombre_sede }}</dd>
+        <dt>Cajero</dt><dd>{{ factura.cajero }}</dd>
+        <dt>Prefijo DIAN</dt><dd>{{ factura.prefijo_dian }}</dd>
+    </dl>
+</div>
+
+<h2>Detalle de productos</h2>
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th class="num">Cant.</th>
+                <th class="num">V. unitario</th>
+                <th class="num">IVA</th>
+                <th class="num">Subtotal</th>
+                <th class="num">Total linea</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in lineas %}
+            <tr>
+                <td>{{ l.nombre_producto }}</td>
+                <td class="num">{{ l.cantidad }}</td>
+                <td class="num">$ {{ '{:,.2f}'.format(l.valor_unitario) }}</td>
+                <td class="num">{{ (l.tarifa_iva_aplicada * 100)|int }}%</td>
+                <td class="num">$ {{ '{:,.2f}'.format(l.subtotal_linea) }}</td>
+                <td class="num">$ {{ '{:,.2f}'.format(l.total_linea) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="totales">
+    <p>Subtotal: $ {{ '{:,.2f}'.format(factura.subtotal) }}</p>
+    <p>IVA: $ {{ '{:,.2f}'.format(factura.valor_total_iva) }}</p>
+    <p><strong>Total a pagar: $ {{ '{:,.2f}'.format(factura.total_pagar) }}</strong></p>
+</div>
+
+<h2>Medios de pago</h2>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Tipo</th><th class="num">Valor</th><th>Fecha</th></tr></thead>
+        <tbody>
+            {% for p in pagos %}
+            <tr>
+                <td>{{ p.tipo_pago }}</td>
+                <td class="num">$ {{ '{:,.2f}'.format(p.valor_pago) }}</td>
+                <td>{{ p.fecha_pago.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

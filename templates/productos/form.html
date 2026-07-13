@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if producto else 'Nuevo' }} producto - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Editar producto' if producto else 'Nuevo producto' }}</h1>
+    <a class="btn btn-sec" href="{{ url_for('productos.listar') }}">Volver</a>
+</div>
+
+{% if producto %}
+<div class="notice">El codigo del producto es la clave primaria y no se puede modificar.</div>
+{% endif %}
+
+<div class="card">
+<form method="post">
+    <div class="grid">
+        <div class="field">
+            <label>Codigo del producto</label>
+            {% if producto %}
+                <input type="text" value="{{ producto.codigo_producto }}" readonly />
+            {% else %}
+                <input type="text" name="codigo_producto" required />
+            {% endif %}
+        </div>
+        <div class="field">
+            <label>Codigo de barras (EAN)</label>
+            <input type="text" name="codigo_barras_ean" value="{{ producto.codigo_barras_ean if producto else '' }}" />
+        </div>
+        <div class="field full">
+            <label>Nombre del producto</label>
+            <input type="text" name="nombre_producto" value="{{ producto.nombre_producto if producto else '' }}" required />
+        </div>
+        <div class="field full">
+            <label>Descripcion</label>
+            <textarea name="descripcion" rows="2">{{ producto.descripcion if producto else '' }}</textarea>
+        </div>
+        <div class="field">
+            <label>Precio de venta</label>
+            <input type="number" step="0.01" min="0.01" name="precio_venta" value="{{ producto.precio_venta if producto else '' }}" required />
+        </div>
+        <div class="field">
+            <label>Costo promedio</label>
+            <input type="number" step="0.01" min="0" name="costo_promedio" value="{{ producto.costo_promedio if producto else 0 }}" />
+        </div>
+        <div class="field">
+            <label>Tarifa de IVA</label>
+            <select name="tarifa_iva" required>
+                {% for t in tarifas %}
+                <option value="{{ t }}" {{ 'selected' if producto and (producto.tarifa_iva|string) == t else '' }}>
+                    {{ (t|float * 100)|int }}%
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Dias de vida util</label>
+            <input type="number" min="0" name="dias_vida_util" value="{{ producto.dias_vida_util if producto else '' }}" />
+        </div>
+        <div class="field">
+            <label>Categoria</label>
+            <select name="id_categoria" required>
+                {% for c in categorias %}
+                <option value="{{ c.id_categoria }}" {{ 'selected' if producto and producto.id_categoria == c.id_categoria else '' }}>{{ c.nombre_categoria }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Marca</label>
+            <select name="id_marca">
+                <option value="">-- Sin marca --</option>
+                {% for m in marcas %}
+                <option value="{{ m.id_marca }}" {{ 'selected' if producto and producto.id_marca == m.id_marca else '' }}>{{ m.nombre_marca }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Unidad de medida</label>
+            <select name="id_unidad" required>
+                {% for u in unidades %}
+                <option value="{{ u.id_unidad }}" {{ 'selected' if producto and producto.id_unidad == u.id_unidad else '' }}>{{ u.nombre_unidad }} ({{ u.abreviatura }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Proveedor principal</label>
+            <select name="id_proveedor_principal" required>
+                {% for pr in proveedores %}
+                <option value="{{ pr.id_proveedor }}" {{ 'selected' if producto and producto.id_proveedor_principal == pr.id_proveedor else '' }}>{{ pr.razon_social }}</option>
+                {% endfor %}
+            </select>
+            <span class="hint">Solo proveedores registrados y activos.</span>
+        </div>
+        <div class="field">
+            <label>Stock minimo</label>
+            <input type="number" min="0" name="stock_minimo" value="{{ producto.stock_minimo if producto else 0 }}" />
+        </div>
+        <div class="field">
+            <label>Stock maximo</label>
+            <input type="number" min="0" name="stock_maximo" value="{{ producto.stock_maximo if producto else '' }}" />
+        </div>
+        <div class="field">
+            <label>Punto de reorden</label>
+            <input type="number" min="0" name="punto_reorden" value="{{ producto.punto_reorden if producto else 0 }}" />
+        </div>
+        <div class="field">
+            <div class="check-row">
+                <input type="checkbox" id="es_perecedero" name="es_perecedero" {{ 'checked' if producto and producto.es_perecedero else '' }} />
+                <label for="es_perecedero" style="margin:0">Es perecedero</label>
+            </div>
+            <div class="check-row">
+                <input type="checkbox" id="requiere_refrigeracion" name="requiere_refrigeracion" {{ 'checked' if producto and producto.requiere_refrigeracion else '' }} />
+                <label for="requiere_refrigeracion" style="margin:0">Requiere refrigeracion</label>
+            </div>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn" type="submit">{{ 'Guardar cambios' if producto else 'Crear producto' }}</button>
+        <a class="btn btn-sec" href="{{ url_for('productos.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endblock %}

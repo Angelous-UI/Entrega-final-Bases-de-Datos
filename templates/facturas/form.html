@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Nueva factura - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>Nueva factura</h1>
+    <a class="btn btn-sec" href="{{ url_for('facturas.listar') }}">Volver</a>
+</div>
+
+<div class="notice">El numero de factura (DIAN) lo genera el sistema. Los totales se calculan en el servidor.</div>
+
+<div class="card">
+<form method="post">
+    <div class="grid">
+        <div class="field">
+            <label>Cliente</label>
+            <select name="id_cliente" required>
+                <option value="">-- Seleccione --</option>
+                {% for c in clientes %}
+                <option value="{{ c.id_cliente }}">{{ c.nombre_completo }} ({{ c.numero_documento }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Sede</label>
+            <select name="id_sede" required>
+                <option value="">-- Seleccione --</option>
+                {% for s in sedes %}<option value="{{ s.id_sede }}">{{ s.nombre_sede }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Cajero</label>
+            <select name="id_cajero" required>
+                <option value="">-- Seleccione --</option>
+                {% for e in cajeros %}<option value="{{ e.id_empleado }}">{{ e.nombre }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Medio de pago</label>
+            <select name="tipo_pago" required>
+                {% for tp in tipos_pago %}<option value="{{ tp }}">{{ tp }}</option>{% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <h2>Productos</h2>
+    <div id="items">
+        <!-- Las filas se agregan dinamicamente aqui -->
+    </div>
+    <button type="button" class="btn btn-sec btn-sm" onclick="agregarFila()">+ Agregar producto</button>
+
+    <div class="totales">
+        <p><strong>Total estimado: $ <span id="total-preview">0.00</span></strong></p>
+        <span class="hint">Valor de referencia; el total definitivo lo calcula el servidor.</span>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn" type="submit">Generar factura</button>
+        <a class="btn btn-sec" href="{{ url_for('facturas.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+
+<!-- Catalogo de productos como datos para el JS -->
+<script>
+const PRODUCTOS = [
+    {% for p in productos %}
+    { codigo: "{{ p.codigo_producto }}", nombre: "{{ p.nombre_producto|replace('"', '') }}", precio: {{ p.precio_venta }}, iva: {{ p.tarifa_iva }} },
+    {% endfor %}
+];
+
+function opcionesProductos() {
+    let html = '<option value="">-- Seleccione --</option>';
+    PRODUCTOS.forEach(p => {
+        html += `<option value="${p.codigo}">${p.nombre} ($${p.precio.toLocaleString()})</option>`;
+    });
+    return html;
+}
+
+function agregarFila() {
+    const cont = document.getElementById('items');
+    const div = document.createElement('div');
+    div.className = 'item-row factura';
+    div.innerHTML = `
+        <div class="field" style="margin:0">
+            <label>Producto</label>
+            <select name="codigo_producto" onchange="calcularTotal()">${opcionesProductos()}</select>
+        </div>
+        <div class="field" style="margin:0">
+            <label>Cantidad</label>
+            <input type="number" name="cantidad" min="1" value="1" oninput="calcularTotal()" />
+        </div>
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); calcularTotal();">Quitar</button>
+    `;
+    cont.appendChild(div);
+}
+
+function calcularTotal() {
+    let total = 0;
+    document.querySelectorAll('#items .item-row').forEach(row => {
+        const codigo = row.querySelector('select').value;
+        const cant = parseInt(row.querySelector('input').value) || 0;
+        const prod = PRODUCTOS.find(p => p.codigo === codigo);
+        if (prod) {
+            const sub = prod.precio * cant;
+            total += sub + sub * prod.iva;
+        }
+    });
+    document.getElementById('total-preview').textContent = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+// Empezar con una fila.
+agregarFila();
+</script>
+{% endblock %}

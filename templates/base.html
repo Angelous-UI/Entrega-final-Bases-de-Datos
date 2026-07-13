@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Superinter S.A.S.{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <a href="{{ url_for('index') }}">SUPERINTER <span>S.A.S.</span></a>
+        </div>
+        <nav class="mainnav">
+            <a href="{{ url_for('clientes.listar') }}">Clientes</a>
+            <a href="{{ url_for('proveedores.listar') }}">Proveedores</a>
+            <a href="{{ url_for('productos.listar') }}">Productos</a>
+            <a href="{{ url_for('facturas.listar') }}">Facturas</a>
+            <a href="{{ url_for('ordenes.listar') }}">Ordenes</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-area">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>Proyecto final - Bases de Datos - Universidad del Valle</p>
+    </footer>
+</body>
+</html>

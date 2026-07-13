@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if proveedor else 'Nuevo' }} proveedor - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Editar proveedor' if proveedor else 'Nuevo proveedor' }}</h1>
+    <a class="btn btn-sec" href="{{ url_for('proveedores.listar') }}">Volver</a>
+</div>
+
+{% if proveedor %}
+<div class="notice">El NIT es un campo critico y no se puede modificar.</div>
+{% endif %}
+
+<div class="card">
+<form method="post">
+    <div class="grid">
+        <div class="field">
+            <label>NIT</label>
+            {% if proveedor %}
+                <input type="text" value="{{ proveedor.nit }}" readonly />
+            {% else %}
+                <input type="text" name="nit" required />
+            {% endif %}
+        </div>
+        <div class="field">
+            <label>Razon social</label>
+            <input type="text" name="razon_social" value="{{ proveedor.razon_social if proveedor else '' }}" required />
+        </div>
+        <div class="field">
+            <label>Numero RUT</label>
+            <input type="text" name="numero_rut" value="{{ proveedor.numero_rut if proveedor else '' }}" />
+        </div>
+        <div class="field">
+            <label>Calificacion (1 a 5)</label>
+            <input type="number" name="calificacion" min="1" max="5" value="{{ proveedor.calificacion if proveedor else '' }}" />
+        </div>
+        <div class="field">
+            <label>Banco</label>
+            <input type="text" name="banco" value="{{ proveedor.banco if proveedor else '' }}" />
+        </div>
+        <div class="field">
+            <label>Tipo de cuenta</label>
+            <select name="tipo_cuenta">
+                <option value="">-- Sin especificar --</option>
+                {% for tc in tipos_cuenta %}
+                <option value="{{ tc }}" {{ 'selected' if proveedor and proveedor.tipo_cuenta == tc else '' }}>{{ tc }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Numero de cuenta</label>
+            <input type="text" name="numero_cuenta" value="{{ proveedor.numero_cuenta if proveedor else '' }}" />
+        </div>
+        <div class="field">
+            <label>Tiempo de entrega (dias)</label>
+            <input type="number" name="tiempo_entrega_dias" min="0" value="{{ proveedor.tiempo_entrega_dias if proveedor else 0 }}" />
+        </div>
+        <div class="field">
+            <label>Condiciones de pago (dias)</label>
+            <input type="number" name="condiciones_pago_dias" min="0" value="{{ proveedor.condiciones_pago_dias if proveedor else 30 }}" />
+        </div>
+
+        <div class="field full"><h2 style="margin:0.5rem 0 0">Contacto comercial</h2></div>
+        <div class="field">
+            <label>Nombre</label>
+            <input type="text" name="contacto_comercial_nombre" value="{{ proveedor.contacto_comercial_nombre if proveedor else '' }}" />
+        </div>
+        <div class="field">
+            <label>Telefono</label>
+            <input type="text" name="contacto_comercial_tel" value="{{ proveedor.contacto_comercial_tel if proveedor else '' }}" />
+        </div>
+        <div class="field full">
+            <label>Email</label>
+            <input type="email" name="contacto_comercial_email" value="{{ proveedor.contacto_comercial_email if proveedor else '' }}" />
+        </div>
+
+        <div class="field full"><h2 style="margin:0.5rem 0 0">Contacto de cartera</h2></div>
+        <div class="field">
+            <label>Nombre</label>
+            <input type="text" name="contacto_cartera_nombre" value="{{ proveedor.contacto_cartera_nombre if proveedor else '' }}" />
+        </div>
+        <div class="field">
+            <label>Telefono</label>
+            <input type="text" name="contacto_cartera_tel" value="{{ proveedor.contacto_cartera_tel if proveedor else '' }}" />
+        </div>
+        <div class="field full">
+            <label>Email</label>
+            <input type="email" name="contacto_cartera_email" value="{{ proveedor.contacto_cartera_email if proveedor else '' }}" />
+        </div>
+
+        <div class="field full"><h2 style="margin:0.5rem 0 0">Contacto logistico</h2></div>
+        <div class="field">
+            <label>Nombre</label>
+            <input type="text" name="contacto_logistico_nombre" value="{{ proveedor.contacto_logistico_nombre if proveedor else '' }}" />
+        </div>
+        <div class="field">
+            <label>Telefono</label>
+            <input type="text" name="contacto_logistico_tel" value="{{ proveedor.contacto_logistico_tel if proveedor else '' }}" />
+        </div>
+        <div class="field full">
+            <label>Email</label>
+            <input type="email" name="contacto_logistico_email" value="{{ proveedor.contacto_logistico_email if proveedor else '' }}" />
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn" type="submit">{{ 'Guardar cambios' if proveedor else 'Crear proveedor' }}</button>
+        <a class="btn btn-sec" href="{{ url_for('proveedores.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endblock %}

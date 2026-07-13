@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Facturas - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Facturas de venta</h1>
+        <p class="subtitle">{{ facturas|length }} factura(s) emitidas</p>
+    </div>
+    <a class="btn" href="{{ url_for('facturas.crear') }}">+ Nueva factura</a>
+</div>
+
+<div class="notice">Las facturas no se pueden editar ni eliminar una vez generadas (regla de negocio).</div>
+
+{% if facturas %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Numero DIAN</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Sede</th>
+                <th class="num">Total</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in facturas %}
+            <tr>
+                <td>{{ f.numero_factura_dian }}</td>
+                <td>{{ f.fecha_expedicion.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ f.cliente }}</td>
+                <td>{{ f.nombre_sede }}</td>
+                <td class="num">$ {{ '{:,.2f}'.format(f.total_pagar) }}</td>
+                <td><span class="badge badge-info">{{ f.estado }}</span></td>
+                <td><a class="btn btn-sec btn-sm" href="{{ url_for('facturas.detalle', id_factura=f.id_factura) }}">Ver</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card"><p class="empty">Aun no hay facturas. Genera la primera.</p></div>
+{% endif %}
+{% endblock %}

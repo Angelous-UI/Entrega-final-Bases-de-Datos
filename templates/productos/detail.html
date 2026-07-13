@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ producto.nombre_producto }} - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{{ producto.nombre_producto }}</h1>
+        <p class="subtitle">
+            Codigo {{ producto.codigo_producto }}
+            {% if producto.activo %}<span class="badge badge-on">Activo</span>
+            {% else %}<span class="badge badge-off">Inactivo</span>{% endif %}
+        </p>
+    </div>
+    <div>
+        <a class="btn" href="{{ url_for('productos.editar', codigo=producto.codigo_producto) }}">Editar</a>
+        <a class="btn btn-sec" href="{{ url_for('productos.listar') }}">Volver</a>
+    </div>
+</div>
+
+<div class="card">
+    <dl class="dl">
+        <dt>Descripcion</dt><dd>{{ producto.descripcion or '-' }}</dd>
+        <dt>Codigo de barras</dt><dd>{{ producto.codigo_barras_ean or '-' }}</dd>
+        <dt>Precio de venta</dt><dd>$ {{ '{:,.2f}'.format(producto.precio_venta) }}</dd>
+        <dt>Costo promedio</dt><dd>$ {{ '{:,.2f}'.format(producto.costo_promedio) }}</dd>
+        <dt>Tarifa de IVA</dt><dd>{{ (producto.tarifa_iva * 100)|int }}%</dd>
+        <dt>Categoria</dt><dd>{{ producto.nombre_categoria }}</dd>
+        <dt>Marca</dt><dd>{{ producto.nombre_marca or '-' }}</dd>
+        <dt>Unidad</dt><dd>{{ producto.nombre_unidad }}</dd>
+        <dt>Proveedor principal</dt><dd>{{ producto.proveedor }}</dd>
+        <dt>Perecedero</dt><dd>{{ 'Si' if producto.es_perecedero else 'No' }}</dd>
+        <dt>Requiere refrigeracion</dt><dd>{{ 'Si' if producto.requiere_refrigeracion else 'No' }}</dd>
+        <dt>Vida util</dt><dd>{{ producto.dias_vida_util or '-' }} dias</dd>
+        <dt>Stock minimo / maximo</dt><dd>{{ producto.stock_minimo }} / {{ producto.stock_maximo or '-' }}</dd>
+        <dt>Punto de reorden</dt><dd>{{ producto.punto_reorden }}</dd>
+    </dl>
+</div>
+{% endblock %}

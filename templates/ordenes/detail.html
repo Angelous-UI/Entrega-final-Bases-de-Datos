@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Orden #{{ orden.num_orden }} - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Orden de pedido #{{ orden.num_orden }}</h1>
+        <p class="subtitle">{{ orden.fecha_pedido }} - <span class="badge badge-info">{{ orden.estado }}</span></p>
+    </div>
+    <a class="btn btn-sec" href="{{ url_for('ordenes.listar') }}">Volver</a>
+</div>
+
+<div class="card">
+    <dl class="dl">
+        <dt>Proveedor</dt><dd>{{ orden.proveedor }} (NIT {{ orden.nit }})</dd>
+        <dt>Bodega destino</dt><dd>{{ orden.nombre_bodega }}</dd>
+        <dt>Solicitante</dt><dd>{{ orden.solicitante }}</dd>
+        <dt>Entrega esperada</dt><dd>{{ orden.fecha_entrega_esperada or '-' }}</dd>
+        <dt>Observaciones</dt><dd>{{ orden.observaciones or '-' }}</dd>
+    </dl>
+</div>
+
+<h2>Productos solicitados</h2>
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th class="num">Cantidad</th>
+                <th class="num">Costo unit.</th>
+                <th class="num">IVA</th>
+                <th class="num">Subtotal</th>
+                <th class="num">Total linea</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in lineas %}
+            <tr>
+                <td>{{ l.nombre_producto }} <span class="hint">({{ l.codigo_producto }})</span></td>
+                <td class="num">{{ l.cantidad_solicitada }}</td>
+                <td class="num">$ {{ '{:,.2f}'.format(l.costo_unitario) }}</td>
+                <td class="num">{{ (l.tarifa_iva * 100)|int }}%</td>
+                <td class="num">$ {{ '{:,.2f}'.format(l.subtotal_linea) }}</td>
+                <td class="num">$ {{ '{:,.2f}'.format(l.total_linea) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="totales">
+    <p>Subtotal: $ {{ '{:,.2f}'.format(orden.subtotal) }}</p>
+    <p>IVA: $ {{ '{:,.2f}'.format(orden.valor_iva) }}</p>
+    <p><strong>Total orden: $ {{ '{:,.2f}'.format(orden.total_orden) }}</strong></p>
+</div>
+{% endblock %}

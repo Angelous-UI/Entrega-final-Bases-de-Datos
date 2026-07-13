@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ cliente.nombre_completo }} - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{{ cliente.nombre_completo }}</h1>
+        <p class="subtitle">
+            {{ cliente.tipo_documento }} {{ cliente.numero_documento }}
+            {% if cliente.activo %}<span class="badge badge-on">Activo</span>
+            {% else %}<span class="badge badge-off">Inactivo</span>{% endif %}
+        </p>
+    </div>
+    <div>
+        <a class="btn" href="{{ url_for('clientes.editar', id_cliente=cliente.id_cliente) }}">Editar</a>
+        <a class="btn btn-sec" href="{{ url_for('clientes.listar') }}">Volver</a>
+    </div>
+</div>
+
+<div class="card">
+    <dl class="dl">
+        <dt>Ciudad</dt><dd>{{ cliente.ciudad }}</dd>
+        <dt>Telefono</dt><dd>{{ cliente.telefono or '-' }}</dd>
+        <dt>Email</dt><dd>{{ cliente.email or '-' }}</dd>
+        <dt>Representante legal</dt><dd>{{ cliente.representante_legal or '-' }}</dd>
+        <dt>Direccion operativa</dt><dd>{{ cliente.direccion_operativa or '-' }}</dd>
+        <dt>Direccion residencia</dt><dd>{{ cliente.direccion_residencia or '-' }}</dd>
+        <dt>Tipo de regimen</dt><dd>{{ cliente.tipo_regimen or '-' }}</dd>
+        <dt>Canal preferido</dt><dd>{{ cliente.canal_venta_preferido or '-' }}</dd>
+        <dt>Habeas data</dt><dd>{{ 'Si' if cliente.habeas_data else 'No' }}</dd>
+        <dt>Fecha de registro</dt><dd>{{ cliente.fecha_registro }}</dd>
+    </dl>
+</div>
+{% endblock %}
