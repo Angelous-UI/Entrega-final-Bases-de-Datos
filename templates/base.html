@@ -9,7 +9,9 @@
 <body>
     <header class="topbar">
         <div class="brand">
-            <a href="{{ url_for('index') }}">SUPERINTER <span>S.A.S.</span></a>
+            <a href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Superinter S.A.S." class="brand-logo" />
+            </a>
         </div>
         <nav class="mainnav">
             <a href="{{ url_for('clientes.listar') }}">Clientes</a>

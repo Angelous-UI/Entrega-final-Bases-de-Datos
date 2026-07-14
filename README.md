@@ -159,12 +159,12 @@ cp .env.example .env
 Contenido de `.env` (ajusta según tu instalación de PostgreSQL):
 
 ```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=superinter
-DB_USER=postgres
-DB_PASSWORD=tu_contraseña
-DB_SCHEMA=superinter
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=superinter
+PGUSER=postgres
+PGPASSWORD=tu_contraseña
+PGSCHEMA=superinter
 SECRET_KEY=cambia-esta-clave
 ```
 
@@ -234,6 +234,6 @@ Cada consulta está comentada con: **objetivo de negocio** y **técnica SQL** ut
 ## Integrantes
 
 - Integrante 1 — _Juan Manuel Muñoz Delgado 2436424_
-- Integrante 2 — _(nombre y código)_
+- Integrante 2 — _Miguel Angel Martinez Eraso 2437814 _
 
 Proyecto para la asignatura de **Bases de Datos**.

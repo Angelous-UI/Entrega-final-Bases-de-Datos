@@ -201,3 +201,43 @@ blanco:
 - **proveedor**: se completaron `numero_rut`, `contacto_comercial_email` y los
   contactos de **cartera** y **logística** mediante un `UPDATE` derivado de los
   datos ya cargados.
+
+## 9. Herramienta de IA utilizada y prompts
+
+**Herramienta:** Claude (Anthropic), a través de la interfaz web claude.ai.
+
+> **Nota de transparencia:** los prompts exactos no quedaron guardados durante
+> el desarrollo. Los que se listan a continuación son una **reconstrucción**
+> fiel del proceso real seguido (visible en la estructura del propio script
+> `superinter_datos.sql`: uso de `generate_series`, sesgos estadísticos,
+> `UPDATE` de completitud de campos), y no una transcripción literal.
+
+Prompts reconstruidos, en el orden aproximado en que se usaron:
+
+1. *"Necesito generar datos sintéticos en SQL para PostgreSQL para un proyecto
+   de supermercado (Superinter S.A.S.), con al menos 1000 facturas de venta.
+   No quiero datos uniformes: quiero que unos pocos productos concentren la
+   mayoría de las ventas, que haya más ventas en fin de año y fines de semana,
+   y que la sede de Cali concentre más ventas que las demás. ¿Cómo lo hago con
+   `generate_series` en vez de escribir cada INSERT a mano?"*
+
+2. *"¿Cómo hago que `random()` se recalcule para cada fila cuando uso
+   `CROSS JOIN LATERAL generate_series`? Me está devolviendo el mismo valor
+   aleatorio repetido en todas las filas."*
+
+3. *"Necesito que los subtotales, el IVA y el total de cada factura sean
+   coherentes con la suma real de sus líneas de detalle, no valores
+   inventados aparte. ¿Cómo recalculo eso a partir del detalle ya generado?"*
+
+4. *"Al revisar los datos cargados, veo columnas opcionales en NULL (email y
+   horario de las sedes, dirección de residencia de clientes, contactos de
+   cartera y logística de proveedores). Ayúdame a completarlas con datos
+   derivados coherentes usando UPDATE, sin tener que regenerar todo desde
+   cero."*
+
+**Ajuste manual del equipo:** en todos los casos, el equipo adaptó los nombres
+de columnas y tablas a los del esquema real (`superinter_ddl.sql`), verificó
+que las cantidades generadas (facturas, órdenes, líneas) cumplieran el mínimo
+de 1.000 transacciones exigido, y validó manualmente en pgAdmin que los sesgos
+(fin de año, concentración en Cali, popularidad de productos) fueran visibles
+al ejecutar las consultas de validación.
