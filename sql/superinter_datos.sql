@@ -135,7 +135,7 @@ INSERT INTO unidad_medida (codigo_unidad, nombre_unidad, abreviatura, tipo) VALU
 --    Procesados canasta -> 0.05 ; Aseo/Hogar/Bebidas -> 0.19
 -- ------------------------------------------------------------
 INSERT INTO producto (codigo_producto, codigo_barras_ean, nombre_producto, precio_venta,
-    costo_promedio, tarifa_iva, es_perecedero, stock_minimo, punto_reorden,
+    costo_promedio, tarifa_iva, es_perecedero, stock_minimo, stock_maximo, punto_reorden,
     id_categoria, id_marca, id_unidad, id_proveedor_principal)
 SELECT
     'P' || LPAD(g::text, 4, '0'),
@@ -157,8 +157,9 @@ SELECT
         ELSE 0.19
     END,
     (g % 3 = 0),                        -- ~1/3 perecederos
-    10,
-    20,
+    10,                                 -- stock_minimo
+    200 + (g % 15) * 20,                -- stock_maximo (capacidad max por producto: 200-480)
+    20,                                 -- punto_reorden
     1 + (g % 10),                       -- categoria 1..10
     1 + (g % 15),                       -- marca 1..15
     1 + (g % 5),                        -- unidad 1..5
@@ -183,7 +184,8 @@ INSERT INTO bodega (codigo_bodega, nombre_bodega, tipo_bodega, id_sede, id_respo
 -- para que el modulo de inventario muestre las 4 categorias de alerta:
 --   ~10% AGOTADO (stock 0), ~20% CRITICO (<5 dias),
 --   ~30% ALERTA (5-15 dias) y ~40% SEGURO (>15 dias).
-INSERT INTO inventario (codigo_producto, id_bodega, stock_actual, demanda_diaria_promedio, fecha_ultimo_conteo)
+INSERT INTO inventario (codigo_producto, id_bodega, stock_actual, demanda_diaria_promedio,
+       fecha_ultima_entrada, fecha_ultima_salida, fecha_ultimo_conteo)
 SELECT p.codigo_producto, b.id_bodega,
        CASE
            WHEN r < 0.10 THEN 0                                        -- AGOTADO
@@ -192,6 +194,10 @@ SELECT p.codigo_producto, b.id_bodega,
            ELSE               (demanda * (16 + random() * 40))::int    -- SEGURO: >15 dias
        END,
        ROUND(demanda::numeric, 2),
+       -- ultima entrada: reabastecimiento reciente (hace 3 a 33 dias)
+       CURRENT_DATE - (3 + floor(random() * 30))::int,
+       -- ultima salida: venta/despacho reciente (hace 0 a 10 dias)
+       CURRENT_DATE - (floor(random() * 11))::int,
        CURRENT_DATE - (floor(random() * 30))::int
 FROM producto p
 CROSS JOIN bodega b
@@ -210,13 +216,18 @@ SELECT
     CASE WHEN g % 10 = 0 THEN 'Empresa Cliente ' || g ELSE 'Cliente Natural ' || g END,
     TRUE,
     (ARRAY['Cali','Cali','Cali','Palmira','Tulua','Buenaventura'])[1 + (g % 6)],  -- sesgo Cali
-    -- direccion_operativa: solo aplica a clientes juridicos (NIT); los naturales quedan NULL
-    CASE WHEN g % 10 = 0 THEN 'Cra ' || (5 + g % 40) || ' #' || (10 + g % 60) || '-' || (5 + g % 50) || ' Local ' || (1 + g % 30) ELSE NULL END,
+    -- direccion_operativa: los juridicos usan el local comercial; los naturales
+    -- operan desde su residencia (misma direccion), de modo que ningun cliente queda sin dato.
+    CASE WHEN g % 10 = 0
+         THEN 'Cra ' || (5 + g % 40) || ' #' || (10 + g % 60) || '-' || (5 + g % 50) || ' Local ' || (1 + g % 30)
+         ELSE 'Cll ' || (1 + g % 90) || ' #' || (2 + g % 70) || '-' || (3 + g % 80)
+    END,
     'Cll ' || (1 + g % 90) || ' #' || (2 + g % 70) || '-' || (3 + g % 80),  -- direccion_residencia
     '31' || LPAD((10000000 + g)::text, 8, '0'),
     'cliente' || g || '@correo.com',
-    -- representante_legal: solo para clientes juridicos (NIT); los naturales quedan NULL
-    CASE WHEN g % 10 = 0 THEN 'Representante Legal ' || g ELSE NULL END,
+    -- representante_legal: los juridicos tienen su representante; para los naturales
+    -- es la propia persona (se registra su nombre) para no dejar el campo vacio.
+    CASE WHEN g % 10 = 0 THEN 'Representante Legal ' || g ELSE 'Cliente Natural ' || g END,
     CASE WHEN g % 10 = 0 THEN 'RESPONSABLE_IVA' ELSE 'NO_RESPONSABLE_IVA' END,
     (ARRAY['PRESENCIAL','PRESENCIAL','PRESENCIAL','DOMICILIO','WEB'])[1 + (g % 5)]
 FROM generate_series(1, 200) AS g;
