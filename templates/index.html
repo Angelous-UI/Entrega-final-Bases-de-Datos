@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Inicio - Superinter S.A.S.{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Panel de administracion</h1>
+        <p class="subtitle">Sistema de gestion CRUD - Superinter S.A.S.</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="margin-top:0">Estado de la conexion</h2>
+    {% if conexion_ok %}
+        <p class="status-ok"><strong>Conectado a PostgreSQL.</strong></p>
+        <p class="hint">{{ mensaje }}</p>
+    {% else %}
+        <p class="status-bad"><strong>Sin conexion a la base de datos.</strong></p>
+        <p class="hint">Revisa tu archivo .env (PGHOST, PGUSER, PGPASSWORD, PGDATABASE).</p>
+        <p class="hint">Detalle: {{ mensaje }}</p>
+    {% endif %}
+</div>
+
+<h2>Modulos disponibles</h2>
+<div class="home-grid">
+    <a class="home-card" href="{{ url_for('clientes.listar') }}">
+        <h3>Clientes</h3>
+        <p>Crear, consultar, editar y desactivar clientes. Documento no editable.</p>
+    </a>
+    <a class="home-card" href="{{ url_for('proveedores.listar') }}">
+        <h3>Proveedores</h3>
+        <p>Registro de proveedores. NIT no editable, baja logica.</p>
+    </a>
+    <a class="home-card" href="{{ url_for('productos.listar') }}">
+        <h3>Productos</h3>
+        <p>Catalogo con eliminacion logica (activo/inactivo).</p>
+    </a>
+    <a class="home-card" href="{{ url_for('inventario.listar') }}">
+        <h3>Inventario</h3>
+        <p>Stock por bodega, dias de stock y alertas de reabastecimiento.</p>
+    </a>
+    <a class="home-card" href="{{ url_for('facturas.listar') }}">
+        <h3>Facturas</h3>
+        <p>Generacion de facturas. No editables ni eliminables.</p>
+    </a>
+    <a class="home-card" href="{{ url_for('ordenes.listar') }}">
+        <h3>Ordenes de pedido</h3>
+        <p>Compras a proveedores registrados. No editables ni eliminables.</p>
+    </a>
+</div>
+{% endblock %}

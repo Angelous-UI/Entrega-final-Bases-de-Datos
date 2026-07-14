@@ -1,0 +1,36 @@
+
+# ---- Variables de entorno (NUNCA subir credenciales) ----
+.env
+.env.local
+.env*.local
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ---- Entornos virtuales ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Flask ----
+instance/
+.webassets-cache
+*.log
+
+# ---- Editores / IDE ----
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---- Sistema operativo ----
+.DS_Store
+Thumbs.db
+
+# ---- Node (no se usa) ----
+node_modules
+.next/

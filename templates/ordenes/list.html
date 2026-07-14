@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Ordenes de pedido - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Ordenes de pedido</h1>
+        <p class="subtitle">{{ ordenes|length }} orden(es) registradas</p>
+    </div>
+    <a class="btn" href="{{ url_for('ordenes.crear') }}">+ Nueva orden</a>
+</div>
+
+<div class="notice">Las ordenes no se pueden editar ni eliminar una vez guardadas (regla de negocio).</div>
+
+{% if ordenes %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>N.o orden</th>
+                <th>Fecha pedido</th>
+                <th>Proveedor</th>
+                <th>Bodega destino</th>
+                <th>Estado</th>
+                <th class="num">Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in ordenes %}
+            <tr>
+                <td>#{{ o.num_orden }}</td>
+                <td>{{ o.fecha_pedido }}</td>
+                <td>{{ o.proveedor }}</td>
+                <td>{{ o.nombre_bodega }}</td>
+                <td><span class="badge badge-info">{{ o.estado }}</span></td>
+                <td class="num">$ {{ '{:,.2f}'.format(o.total_orden) }}</td>
+                <td><a class="btn btn-sec btn-sm" href="{{ url_for('ordenes.detalle', num_orden=o.num_orden) }}">Ver</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card"><p class="empty">Aun no hay ordenes de pedido. Crea la primera.</p></div>
+{% endif %}
+{% endblock %}

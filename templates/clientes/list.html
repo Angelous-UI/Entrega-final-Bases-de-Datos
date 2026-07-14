@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Clientes - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Clientes</h1>
+        <p class="subtitle">{{ clientes|length }} cliente(s) registrados</p>
+    </div>
+    <a class="btn" href="{{ url_for('clientes.crear') }}">+ Nuevo cliente</a>
+</div>
+
+{% if clientes %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Documento</th>
+                <th>Nombre</th>
+                <th>Ciudad</th>
+                <th>Telefono</th>
+                <th>Canal</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in clientes %}
+            <tr>
+                <td>{{ c.tipo_documento }} {{ c.numero_documento }}</td>
+                <td>{{ c.nombre_completo }}</td>
+                <td>{{ c.ciudad }}</td>
+                <td>{{ c.telefono or '-' }}</td>
+                <td>{{ c.canal_venta_preferido or '-' }}</td>
+                <td>
+                    {% if c.activo %}<span class="badge badge-on">Activo</span>
+                    {% else %}<span class="badge badge-off">Inactivo</span>{% endif %}
+                </td>
+                <td>
+                    <a class="btn btn-sec btn-sm" href="{{ url_for('clientes.detalle', id_cliente=c.id_cliente) }}">Ver</a>
+                    <a class="btn btn-sec btn-sm" href="{{ url_for('clientes.editar', id_cliente=c.id_cliente) }}">Editar</a>
+                    <form method="post" action="{{ url_for('clientes.cambiar_estado', id_cliente=c.id_cliente) }}" style="display:inline">
+                        <button class="btn btn-sm {{ 'btn-danger' if c.activo else 'btn-sec' }}" type="submit">
+                            {{ 'Desactivar' if c.activo else 'Activar' }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card"><p class="empty">Aun no hay clientes. Crea el primero.</p></div>
+{% endif %}
+{% endblock %}

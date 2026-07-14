@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Nueva orden de pedido - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>Nueva orden de pedido</h1>
+    <a class="btn btn-sec" href="{{ url_for('ordenes.listar') }}">Volver</a>
+</div>
+
+<div class="notice">Solo se piden productos y proveedores ya registrados. Los totales se calculan en el servidor.</div>
+
+<div class="card">
+<form method="post">
+    <div class="grid">
+        <div class="field">
+            <label>Proveedor</label>
+            <select name="id_proveedor" required>
+                <option value="">-- Seleccione --</option>
+                {% for p in proveedores %}
+                <option value="{{ p.id_proveedor }}">{{ p.razon_social }} (NIT {{ p.nit }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Bodega destino</label>
+            <select name="id_bodega_destino" required>
+                <option value="">-- Seleccione --</option>
+                {% for b in bodegas %}<option value="{{ b.id_bodega }}">{{ b.nombre_bodega }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Empleado solicitante</label>
+            <select name="id_empleado_solicita" required>
+                <option value="">-- Seleccione --</option>
+                {% for e in empleados %}<option value="{{ e.id_empleado }}">{{ e.nombre }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Fecha entrega esperada</label>
+            <input type="date" name="fecha_entrega_esperada" />
+        </div>
+        <div class="field full">
+            <label>Observaciones</label>
+            <textarea name="observaciones" rows="2"></textarea>
+        </div>
+    </div>
+
+    <h2>Productos a solicitar</h2>
+    <div id="items"></div>
+    <button type="button" class="btn btn-sec btn-sm" onclick="agregarFila()">+ Agregar producto</button>
+
+    <div class="totales">
+        <p><strong>Total estimado: $ <span id="total-preview">0.00</span></strong></p>
+        <span class="hint">Valor de referencia; el total definitivo lo calcula el servidor.</span>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn" type="submit">Guardar orden</button>
+        <a class="btn btn-sec" href="{{ url_for('ordenes.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+
+<script>
+const PRODUCTOS = [
+    {% for p in productos %}
+    { codigo: "{{ p.codigo_producto }}", nombre: "{{ p.nombre_producto|replace('"', '') }}", costo: {{ p.costo_promedio or 0 }}, iva: {{ p.tarifa_iva }} },
+    {% endfor %}
+];
+
+function opcionesProductos() {
+    let html = '<option value="">-- Seleccione --</option>';
+    PRODUCTOS.forEach(p => {
+        html += `<option value="${p.codigo}" data-costo="${p.costo}">${p.nombre} (${p.codigo})</option>`;
+    });
+    return html;
+}
+
+function agregarFila() {
+    const cont = document.getElementById('items');
+    const div = document.createElement('div');
+    div.className = 'item-row';
+    div.innerHTML = `
+        <div class="field" style="margin:0">
+            <label>Producto</label>
+            <select name="codigo_producto" onchange="autoCosto(this); calcularTotal();">${opcionesProductos()}</select>
+        </div>
+        <div class="field" style="margin:0">
+            <label>Cantidad</label>
+            <input type="number" name="cantidad_solicitada" min="1" value="1" oninput="calcularTotal()" />
+        </div>
+        <div class="field" style="margin:0">
+            <label>Costo unit.</label>
+            <input type="number" name="costo_unitario" min="0" step="0.01" value="0" oninput="calcularTotal()" />
+        </div>
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); calcularTotal();">Quitar</button>
+    `;
+    cont.appendChild(div);
+}
+
+function autoCosto(sel) {
+    const opt = sel.selectedOptions[0];
+    const costo = Number(opt.getAttribute('data-costo') || 0);
+    const row = sel.closest('.item-row');
+    const inputCosto = row.querySelector('input[name="costo_unitario"]');
+    if (costo > 0) inputCosto.value = costo;
+}
+
+function calcularTotal() {
+    let total = 0;
+    document.querySelectorAll('#items .item-row').forEach(row => {
+        const codigo = row.querySelector('select').value;
+        const cant = parseInt(row.querySelector('input[name="cantidad_solicitada"]').value) || 0;
+        const costo = parseFloat(row.querySelector('input[name="costo_unitario"]').value) || 0;
+        const prod = PRODUCTOS.find(p => p.codigo === codigo);
+        if (prod) {
+            const sub = costo * cant;
+            total += sub + sub * prod.iva;
+        }
+    });
+    document.getElementById('total-preview').textContent = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+agregarFila();
+</script>
+{% endblock %}

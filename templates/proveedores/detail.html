@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ proveedor.razon_social }} - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{{ proveedor.razon_social }}</h1>
+        <p class="subtitle">
+            NIT {{ proveedor.nit }}
+            {% if proveedor.activo %}<span class="badge badge-on">Activo</span>
+            {% else %}<span class="badge badge-off">Inactivo</span>{% endif %}
+        </p>
+    </div>
+    <div>
+        <a class="btn" href="{{ url_for('proveedores.editar', id_proveedor=proveedor.id_proveedor) }}">Editar</a>
+        <a class="btn btn-sec" href="{{ url_for('proveedores.listar') }}">Volver</a>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="margin-top:0">Datos generales</h2>
+    <dl class="dl">
+        <dt>Numero RUT</dt><dd>{{ proveedor.numero_rut or '-' }}</dd>
+        <dt>Calificacion</dt><dd>{{ proveedor.calificacion or '-' }}</dd>
+        <dt>Tiempo de entrega</dt><dd>{{ proveedor.tiempo_entrega_dias }} dias</dd>
+        <dt>Condiciones de pago</dt><dd>{{ proveedor.condiciones_pago_dias }} dias</dd>
+        <dt>Banco</dt><dd>{{ proveedor.banco or '-' }}</dd>
+        <dt>Tipo de cuenta</dt><dd>{{ proveedor.tipo_cuenta or '-' }}</dd>
+        <dt>Numero de cuenta</dt><dd>{{ proveedor.numero_cuenta or '-' }}</dd>
+    </dl>
+</div>
+
+<div class="card">
+    <h2 style="margin-top:0">Contactos</h2>
+    <dl class="dl">
+        <dt>Comercial</dt><dd>{{ proveedor.contacto_comercial_nombre or '-' }} / {{ proveedor.contacto_comercial_tel or '-' }} / {{ proveedor.contacto_comercial_email or '-' }}</dd>
+        <dt>Cartera</dt><dd>{{ proveedor.contacto_cartera_nombre or '-' }} / {{ proveedor.contacto_cartera_tel or '-' }} / {{ proveedor.contacto_cartera_email or '-' }}</dd>
+        <dt>Logistico</dt><dd>{{ proveedor.contacto_logistico_nombre or '-' }} / {{ proveedor.contacto_logistico_tel or '-' }} / {{ proveedor.contacto_logistico_email or '-' }}</dd>
+    </dl>
+</div>
+{% endblock %}

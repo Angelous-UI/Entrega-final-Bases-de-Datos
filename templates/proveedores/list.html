@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Proveedores - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Proveedores</h1>
+        <p class="subtitle">{{ proveedores|length }} proveedor(es) registrados</p>
+    </div>
+    <a class="btn" href="{{ url_for('proveedores.crear') }}">+ Nuevo proveedor</a>
+</div>
+
+{% if proveedores %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>NIT</th>
+                <th>Razon social</th>
+                <th>Contacto comercial</th>
+                <th>Telefono</th>
+                <th class="num">Calif.</th>
+                <th class="num">Entrega (dias)</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in proveedores %}
+            <tr>
+                <td>{{ p.nit }}</td>
+                <td>{{ p.razon_social }}</td>
+                <td>{{ p.contacto_comercial_nombre or '-' }}</td>
+                <td>{{ p.contacto_comercial_tel or '-' }}</td>
+                <td class="num">{{ p.calificacion or '-' }}</td>
+                <td class="num">{{ p.tiempo_entrega_dias }}</td>
+                <td>
+                    {% if p.activo %}<span class="badge badge-on">Activo</span>
+                    {% else %}<span class="badge badge-off">Inactivo</span>{% endif %}
+                </td>
+                <td>
+                    <a class="btn btn-sec btn-sm" href="{{ url_for('proveedores.detalle', id_proveedor=p.id_proveedor) }}">Ver</a>
+                    <a class="btn btn-sec btn-sm" href="{{ url_for('proveedores.editar', id_proveedor=p.id_proveedor) }}">Editar</a>
+                    <form method="post" action="{{ url_for('proveedores.cambiar_estado', id_proveedor=p.id_proveedor) }}" style="display:inline">
+                        <button class="btn btn-sm {{ 'btn-danger' if p.activo else 'btn-sec' }}" type="submit">
+                            {{ 'Desactivar' if p.activo else 'Activar' }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card"><p class="empty">Aun no hay proveedores. Crea el primero.</p></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if cliente else 'Nuevo' }} cliente - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Editar cliente' if cliente else 'Nuevo cliente' }}</h1>
+    <a class="btn btn-sec" href="{{ url_for('clientes.listar') }}">Volver</a>
+</div>
+
+{% if cliente %}
+<div class="notice">El tipo y numero de documento son campos criticos y no se pueden modificar.</div>
+{% endif %}
+
+<div class="card">
+<form method="post">
+    <div class="grid">
+        <div class="field">
+            <label>Tipo de documento</label>
+            {% if cliente %}
+                <input type="text" value="{{ cliente.tipo_documento }}" readonly />
+            {% else %}
+                <select name="tipo_documento" required>
+                    {% for t in tipos_documento %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+                </select>
+            {% endif %}
+        </div>
+        <div class="field">
+            <label>Numero de documento</label>
+            {% if cliente %}
+                <input type="text" value="{{ cliente.numero_documento }}" readonly />
+            {% else %}
+                <input type="text" name="numero_documento" required />
+            {% endif %}
+        </div>
+        <div class="field full">
+            <label>Nombre completo / Razon social</label>
+            <input type="text" name="nombre_completo" value="{{ cliente.nombre_completo if cliente else '' }}" required />
+        </div>
+        <div class="field">
+            <label>Ciudad</label>
+            <input type="text" name="ciudad" value="{{ cliente.ciudad if cliente else '' }}" required />
+        </div>
+        <div class="field">
+            <label>Telefono</label>
+            <input type="text" name="telefono" value="{{ cliente.telefono if cliente else '' }}" />
+        </div>
+        <div class="field">
+            <label>Email</label>
+            <input type="email" name="email" value="{{ cliente.email if cliente else '' }}" />
+        </div>
+        <div class="field">
+            <label>Representante legal</label>
+            <input type="text" name="representante_legal" value="{{ cliente.representante_legal if cliente else '' }}" />
+        </div>
+        <div class="field">
+            <label>Direccion operativa</label>
+            <input type="text" name="direccion_operativa" value="{{ cliente.direccion_operativa if cliente else '' }}" />
+        </div>
+        <div class="field">
+            <label>Direccion residencia</label>
+            <input type="text" name="direccion_residencia" value="{{ cliente.direccion_residencia if cliente else '' }}" />
+        </div>
+        <div class="field">
+            <label>Tipo de regimen</label>
+            <select name="tipo_regimen">
+                <option value="">-- Sin especificar --</option>
+                {% for r in tipos_regimen %}
+                <option value="{{ r }}" {{ 'selected' if cliente and cliente.tipo_regimen == r else '' }}>{{ r }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Canal de venta preferido</label>
+            <select name="canal_venta_preferido">
+                <option value="">-- Sin especificar --</option>
+                {% for ca in canales %}
+                <option value="{{ ca }}" {{ 'selected' if cliente and cliente.canal_venta_preferido == ca else '' }}>{{ ca }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field full">
+            <div class="check-row">
+                <input type="checkbox" id="habeas_data" name="habeas_data"
+                    {{ 'checked' if cliente and cliente.habeas_data else '' }} />
+                <label for="habeas_data" style="margin:0">Autoriza tratamiento de datos (habeas data)</label>
+            </div>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn" type="submit">{{ 'Guardar cambios' if cliente else 'Crear cliente' }}</button>
+        <a class="btn btn-sec" href="{{ url_for('clientes.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endblock %}
