@@ -35,6 +35,10 @@
         <h3>Productos</h3>
         <p>Catalogo con eliminacion logica (activo/inactivo).</p>
     </a>
+    <a class="home-card" href="{{ url_for('inventario.listar') }}">
+        <h3>Inventario</h3>
+        <p>Stock por bodega, dias de stock y alertas de reabastecimiento.</p>
+    </a>
     <a class="home-card" href="{{ url_for('facturas.listar') }}">
         <h3>Facturas</h3>
         <p>Generacion de facturas. No editables ni eliminables.</p>

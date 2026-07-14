@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Inventario - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Gestion de inventario</h1>
+        <p class="subtitle">{{ filas|length }} registro(s) de stock por producto y bodega</p>
+    </div>
+    <a class="btn" href="{{ url_for('inventario.crear') }}">+ Nuevo registro</a>
+</div>
+
+<div class="notice">
+    Los <strong>dias de stock</strong> se calculan al vuelo (stock actual / demanda diaria) y no se almacenan.
+    El estado de reabastecimiento se actualiza automaticamente.
+</div>
+
+<div class="stock-resumen">
+    <div class="stock-card estado-agotado">
+        <span class="stock-num">{{ resumen.AGOTADO }}</span>
+        <span class="stock-lbl">Agotado</span>
+    </div>
+    <div class="stock-card estado-critico">
+        <span class="stock-num">{{ resumen.CRITICO }}</span>
+        <span class="stock-lbl">Critico</span>
+    </div>
+    <div class="stock-card estado-alerta">
+        <span class="stock-num">{{ resumen.ALERTA }}</span>
+        <span class="stock-lbl">Alerta</span>
+    </div>
+    <div class="stock-card estado-seguro">
+        <span class="stock-num">{{ resumen.SEGURO }}</span>
+        <span class="stock-lbl">Seguro</span>
+    </div>
+</div>
+
+{% if filas %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Bodega</th>
+                <th class="num">Stock actual</th>
+                <th class="num">Demanda diaria</th>
+                <th class="num">Dias de stock</th>
+                <th>Estado</th>
+                <th>Accion recomendada</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in filas %}
+            <tr>
+                <td>
+                    <strong>{{ f.nombre_producto }}</strong><br />
+                    <span class="hint">{{ f.codigo_producto }}</span>
+                </td>
+                <td>{{ f.nombre_bodega }}</td>
+                <td class="num">{{ f.stock_actual }} {{ f.unidad }}</td>
+                <td class="num">{{ '{:.1f}'.format(f.demanda_diaria_promedio) }}</td>
+                <td class="num">{{ f.dias_stock_txt }}</td>
+                <td><span class="badge-estado {{ f.estado_css }}">{{ f.categoria_estado }}</span></td>
+                <td>{{ f.accion_recomendada }}</td>
+                <td>
+                    <a class="btn btn-sec btn-sm" href="{{ url_for('inventario.detalle', id_inventario=f.id_inventario) }}">Ver</a>
+                    <a class="btn btn-sec btn-sm" href="{{ url_for('inventario.editar', id_inventario=f.id_inventario) }}">Editar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card"><p class="empty">Aun no hay registros de inventario. Crea el primero.</p></div>
+{% endif %}
+{% endblock %}

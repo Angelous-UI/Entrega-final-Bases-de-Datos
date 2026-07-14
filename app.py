@@ -17,6 +17,7 @@ from db import check_connection
 from routes.clientes import bp as clientes_bp
 from routes.proveedores import bp as proveedores_bp
 from routes.productos import bp as productos_bp
+from routes.inventario import bp as inventario_bp
 from routes.facturas import bp as facturas_bp
 from routes.ordenes import bp as ordenes_bp
 
@@ -30,6 +31,7 @@ def create_app() -> Flask:
     app.register_blueprint(clientes_bp, url_prefix="/clientes")
     app.register_blueprint(proveedores_bp, url_prefix="/proveedores")
     app.register_blueprint(productos_bp, url_prefix="/productos")
+    app.register_blueprint(inventario_bp, url_prefix="/inventario")
     app.register_blueprint(facturas_bp, url_prefix="/facturas")
     app.register_blueprint(ordenes_bp, url_prefix="/ordenes")
 

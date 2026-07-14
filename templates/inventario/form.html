@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if inv else 'Nuevo' }} inventario - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ 'Editar registro de inventario' if inv else 'Nuevo registro de inventario' }}</h1>
+    <a class="btn btn-sec" href="{{ url_for('inventario.listar') }}">Volver</a>
+</div>
+
+{% if inv %}
+<div class="notice">
+    El producto y la bodega no se pueden cambiar. El <strong>stock actual</strong> solo se
+    modifica mediante movimientos desde la ficha de detalle.
+</div>
+{% else %}
+<div class="notice">
+    Solo se registra inventario de productos ya creados (y que, por tanto, tienen proveedor).
+    Un producto no se puede duplicar en la misma bodega.
+</div>
+{% endif %}
+
+<div class="card">
+{% if inv %}
+<form method="post" action="{{ url_for('inventario.editar', id_inventario=inv.id_inventario) }}">
+    <div class="grid">
+        <div class="field">
+            <label>Producto</label>
+            <input type="text" value="{{ inv.nombre_producto }} ({{ inv.codigo_producto }})" readonly />
+        </div>
+        <div class="field">
+            <label>Bodega</label>
+            <input type="text" value="{{ inv.nombre_bodega }}" readonly />
+        </div>
+        <div class="field">
+            <label>Stock actual</label>
+            <input type="number" value="{{ inv.stock_actual }}" readonly />
+            <span class="hint">Cambia solo con movimientos.</span>
+        </div>
+        <div class="field">
+            <label>Stock reservado</label>
+            <input type="number" min="0" name="stock_reservado" value="{{ inv.stock_reservado }}" />
+        </div>
+        <div class="field">
+            <label>Demanda diaria promedio</label>
+            <input type="number" min="0" step="0.01" name="demanda_diaria_promedio" value="{{ inv.demanda_diaria_promedio }}" />
+            <span class="hint">Se usa para calcular los dias de stock.</span>
+        </div>
+        <div class="field">
+            <label>Fecha ultimo conteo</label>
+            <input type="date" name="fecha_ultimo_conteo" value="{{ inv.fecha_ultimo_conteo }}" />
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn" type="submit">Guardar cambios</button>
+        <a class="btn btn-sec" href="{{ url_for('inventario.detalle', id_inventario=inv.id_inventario) }}">Cancelar</a>
+    </div>
+</form>
+{% else %}
+<form method="post" action="{{ url_for('inventario.crear') }}">
+    <div class="grid">
+        <div class="field">
+            <label>Producto</label>
+            <select name="codigo_producto" required>
+                <option value="">-- Seleccione --</option>
+                {% for p in productos %}
+                <option value="{{ p.codigo_producto }}">{{ p.nombre_producto }} ({{ p.codigo_producto }})</option>
+                {% endfor %}
+            </select>
+            <span class="hint">Solo productos registrados y activos.</span>
+        </div>
+        <div class="field">
+            <label>Bodega</label>
+            <select name="id_bodega" required>
+                <option value="">-- Seleccione --</option>
+                {% for b in bodegas %}<option value="{{ b.id_bodega }}">{{ b.nombre_bodega }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Stock actual (inventario inicial)</label>
+            <input type="number" min="0" name="stock_actual" value="0" required />
+        </div>
+        <div class="field">
+            <label>Stock reservado</label>
+            <input type="number" min="0" name="stock_reservado" value="0" />
+        </div>
+        <div class="field">
+            <label>Demanda diaria promedio</label>
+            <input type="number" min="0" step="0.01" name="demanda_diaria_promedio" value="0" />
+            <span class="hint">Se usa para calcular los dias de stock.</span>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn" type="submit">Crear registro</button>
+        <a class="btn btn-sec" href="{{ url_for('inventario.listar') }}">Cancelar</a>
+    </div>
+</form>
+{% endif %}
+</div>
+{% endblock %}

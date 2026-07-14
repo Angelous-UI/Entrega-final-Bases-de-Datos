@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Inventario {{ inv.nombre_producto }} - Superinter{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{{ inv.nombre_producto }}</h1>
+        <p class="subtitle">
+            {{ inv.codigo_producto }} &middot; {{ inv.nombre_bodega }}
+            <span class="badge-estado {{ inv.estado_css }}">{{ inv.categoria_estado }}</span>
+        </p>
+    </div>
+    <div>
+        <a class="btn" href="{{ url_for('inventario.editar', id_inventario=inv.id_inventario) }}">Editar</a>
+        <a class="btn btn-sec" href="{{ url_for('inventario.listar') }}">Volver</a>
+    </div>
+</div>
+
+<div class="card">
+    <dl class="dl">
+        <dt>Stock actual</dt><dd>{{ inv.stock_actual }} {{ inv.unidad }}</dd>
+        <dt>Stock reservado</dt><dd>{{ inv.stock_reservado }} {{ inv.unidad }}</dd>
+        <dt>Demanda diaria promedio</dt><dd>{{ '{:.2f}'.format(inv.demanda_diaria_promedio) }} {{ inv.unidad }}/dia</dd>
+        <dt>Dias de stock (calculado)</dt><dd><strong>{{ inv.dias_stock_txt }}</strong></dd>
+        <dt>Categoria de estado</dt><dd><span class="badge-estado {{ inv.estado_css }}">{{ inv.categoria_estado }}</span></dd>
+        <dt>Accion recomendada</dt><dd>{{ inv.accion_recomendada }}</dd>
+        <dt>Stock minimo / maximo</dt><dd>{{ inv.stock_minimo }} / {{ inv.stock_maximo or '-' }}</dd>
+        <dt>Punto de reorden</dt><dd>{{ inv.punto_reorden }}</dd>
+        <dt>Proveedor</dt><dd>{{ inv.proveedor }}</dd>
+        <dt>Tiempo de entrega proveedor</dt><dd>{{ inv.tiempo_entrega_dias }} dia(s)</dd>
+        <dt>Bodega</dt><dd>{{ inv.nombre_bodega }} ({{ inv.tipo_bodega or '-' }})</dd>
+        <dt>Ultima entrada</dt><dd>{{ inv.fecha_ultima_entrada or '-' }}</dd>
+        <dt>Ultima salida</dt><dd>{{ inv.fecha_ultima_salida or '-' }}</dd>
+        <dt>Ultimo conteo</dt><dd>{{ inv.fecha_ultimo_conteo or '-' }}</dd>
+    </dl>
+</div>
+
+<h2>Registrar movimiento de stock</h2>
+<div class="notice">El stock fisico solo cambia mediante movimientos. Cada movimiento queda auditado.</div>
+<div class="card">
+<form method="post" action="{{ url_for('inventario.movimiento', id_inventario=inv.id_inventario) }}">
+    <div class="grid">
+        <div class="field">
+            <label>Tipo de movimiento</label>
+            <select name="tipo_movimiento" required>
+                <option value="ENTRADA">Entrada</option>
+                <option value="SALIDA">Salida</option>
+                <option value="AJUSTE_POSITIVO">Ajuste positivo</option>
+                <option value="AJUSTE_NEGATIVO">Ajuste negativo</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Cantidad</label>
+            <input type="number" name="cantidad" min="1" value="1" required />
+        </div>
+        <div class="field">
+            <label>Costo unitario (opcional)</label>
+            <input type="number" name="costo_unitario" min="0" step="0.01" />
+        </div>
+        <div class="field">
+            <label>Empleado responsable</label>
+            <select name="id_empleado" required>
+                <option value="">-- Seleccione --</option>
+                {% for e in empleados %}<option value="{{ e.id_empleado }}">{{ e.nombre }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Documento de referencia (opcional)</label>
+            <input type="text" name="documento_referencia" />
+        </div>
+        <div class="field full">
+            <label>Motivo (opcional)</label>
+            <textarea name="motivo" rows="2"></textarea>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn" type="submit">Registrar movimiento</button>
+    </div>
+</form>
+</div>
+
+<h2>Historial de movimientos</h2>
+{% if movimientos %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th class="num">Cantidad</th>
+                <th class="num">Stock ant.</th>
+                <th class="num">Stock post.</th>
+                <th>Empleado</th>
+                <th>Documento</th>
+                <th>Motivo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in movimientos %}
+            <tr>
+                <td>{{ m.fecha_movimiento.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ m.tipo_movimiento }}</td>
+                <td class="num">{{ m.cantidad }}</td>
+                <td class="num">{{ m.stock_anterior }}</td>
+                <td class="num">{{ m.stock_posterior }}</td>
+                <td>{{ m.empleado }}</td>
+                <td>{{ m.documento_referencia or '-' }}</td>
+                <td>{{ m.motivo or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card"><p class="empty">Sin movimientos registrados.</p></div>
+{% endif %}
+{% endblock %}

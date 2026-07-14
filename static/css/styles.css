@@ -167,3 +167,37 @@ input[readonly], input:disabled { background: #eef0f2; color: var(--gris-suave);
 @media (max-width: 640px) { .item-row, .item-row.factura { grid-template-columns: 1fr; } }
 .totales { margin-top: 1rem; text-align: right; font-size: 1rem; }
 .totales strong { font-size: 1.2rem; color: var(--azul-oscuro); }
+
+/* ---------- Inventario: estados de stock ---------- */
+.stock-resumen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.85rem;
+    margin-bottom: 1.25rem;
+}
+.stock-card {
+    border-radius: var(--radio);
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--gris-borde);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.stock-card .stock-num { font-size: 1.75rem; font-weight: 700; line-height: 1; }
+.stock-card .stock-lbl { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+
+/* Badge de estado dentro de tablas y fichas */
+.badge-estado {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+/* Paleta por estado (semaforo de reabastecimiento) */
+.estado-agotado { background: #fdecea; color: var(--rojo-oscuro); border-color: #f3c4c0; }
+.estado-critico { background: #fff1e6; color: #b45309; border-color: #f6d9bd; }
+.estado-alerta  { background: #fff8ec; color: var(--ambar); border-color: #f0dcae; }
+.estado-seguro  { background: var(--azul-claro); color: var(--azul-oscuro); border-color: #b8bbec; }
